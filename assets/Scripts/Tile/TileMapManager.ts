@@ -1,14 +1,15 @@
 import { _decorator, Component, resources, SpriteFrame } from "cc";
 import { TileManager } from "./TileManager";
-import { createUINode } from "../Utils";
-import { DataManagerInstance } from "../Runtime/DataManager";
+import { createUINode, randomByRange } from "../Utils";
+import DataManager from "../Runtime/DataManager";
+import { ResourceManager } from "../Runtime/ResourceManager";
 const { ccclass } = _decorator;
 
 @ccclass("TileMapManager")
 export class TileMapManager extends Component {
     async init() {
-        const spriteFrames = await this.loadRes();
-        const { mapInfo } = DataManagerInstance;
+        const spriteFrames = await ResourceManager.Instance.loadDir("/texture/tile/tile");
+        const { mapInfo } = DataManager.Instance;
         for (let i = 0; i < mapInfo.length; i++) {
             const column = mapInfo[i];
             for (let j = 0; j < column.length; j++) {
@@ -17,7 +18,13 @@ export class TileMapManager extends Component {
                     continue;
                 }
 
-                const imageSrc = `tile (${item.src})`;
+                let number = item.src;
+
+                if (randomByRange(0, 4) === 0 && (number === 1 || number === 5 || number === 9)) {
+                    number += randomByRange(0, 4);
+                }
+
+                const imageSrc = `tile (${number})`;
                 const spriteFrame = spriteFrames.find(sp => sp.name === imageSrc) || spriteFrames[0];
 
                 const node = createUINode();
@@ -27,17 +34,5 @@ export class TileMapManager extends Component {
                 node.parent = this.node;
             }
         }
-    }
-
-    loadRes() {
-        return new Promise<SpriteFrame[]>((resolve, reject) => {
-            resources.loadDir("/texture/tile/tile", SpriteFrame, function (err, assets) {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve(assets);
-            });
-        });
     }
 }
