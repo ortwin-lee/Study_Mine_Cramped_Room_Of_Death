@@ -1,9 +1,6 @@
-import { _decorator, Component, Layers, Node, resources, Sprite, SpriteFrame, UITransform } from "cc";
-import levels from "../Levels";
-const { ccclass, property } = _decorator;
-
-export const TILE_WIDTH = 55;
-export const TILE_HEIGHT = 55;
+import { _decorator, Component, Sprite, SpriteFrame, UITransform } from "cc";
+import { TILE_HEIGHT, TILE_WIDTH } from "../Const";
+const { ccclass } = _decorator;
 
 @ccclass("TileManager")
 export class TileManager extends Component {

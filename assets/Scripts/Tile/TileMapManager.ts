@@ -1,17 +1,14 @@
-import { _decorator, Component, Layers, Node, resources, Sprite, SpriteFrame, UITransform } from "cc";
-import levels from "../Levels";
+import { _decorator, Component, resources, SpriteFrame } from "cc";
 import { TileManager } from "./TileManager";
 import { createUINode } from "../Utils";
-const { ccclass, property } = _decorator;
-
-export const TILE_WIDTH = 55;
-export const TILE_HEIGHT = 55;
+import { DataManagerInstance } from "../Runtime/DataManager";
+const { ccclass } = _decorator;
 
 @ccclass("TileMapManager")
 export class TileMapManager extends Component {
     async init() {
-        const { mapInfo } = levels[`level${1}`];
         const spriteFrames = await this.loadRes();
+        const { mapInfo } = DataManagerInstance;
         for (let i = 0; i < mapInfo.length; i++) {
             const column = mapInfo[i];
             for (let j = 0; j < column.length; j++) {
