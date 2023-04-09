@@ -1,0 +1,20 @@
+{
+    "name": "Study_Mine_Cramped_Room_Of_Death",
+    "uuid": "4854743b-0044-4f42-ad27-03127cc42e80",
+    "version": "3.7.2",
+    "creator": {
+        "version": "3.7.2"
+    },
+    "scripts": {
+        "lint": "eslint --fix & prettier --write src/**"
+    },
+    "devDependencies": {
+        "typescript": "^5.0.4",
+        "@typescript-eslint/eslint-plugin": "^5.57.1",
+        "@typescript-eslint/parser": "^5.57.1",
+        "eslint": "^8.38.0",
+        "eslint-config-prettier": "^8.8.0",
+        "eslint-plugin-prettier": "^4.2.1",
+        "prettier": "^2.8.7"
+    }
+}

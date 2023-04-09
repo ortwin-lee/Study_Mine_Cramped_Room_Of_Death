@@ -1,0 +1,63 @@
+{
+  "ver": "1.0.8",
+  "importer": "sprite-atlas",
+  "imported": true,
+  "uuid": "798d49a5-d6f7-445c-8f4f-7e8e9ef05a69",
+  "files": [
+    ".json"
+  ],
+  "subMetas": {
+    "b079a": {
+      "importer": "sprite-frame",
+      "uuid": "798d49a5-d6f7-445c-8f4f-7e8e9ef05a69@b079a",
+      "displayName": "",
+      "id": "b079a",
+      "name": "door (2)",
+      "userData": {
+        "trimType": "auto",
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 0,
+        "offsetY": 0,
+        "trimX": 0,
+        "trimY": 0,
+        "width": 320,
+        "height": 320,
+        "rawWidth": 320,
+        "rawHeight": 320,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "pixelsToUnit": 100,
+        "pivotX": 0.5,
+        "pivotY": 0.5,
+        "meshType": 0,
+        "vertices": {
+          "rawPosition": [],
+          "indexes": [],
+          "uv": [],
+          "nuv": [],
+          "minPos": [],
+          "maxPos": []
+        },
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "a573aa03-fef0-40fd-acd2-a8f62ce3071e@6c48a",
+        "atlasUuid": "798d49a5-d6f7-445c-8f4f-7e8e9ef05a69"
+      },
+      "ver": "1.0.11",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "atlasTextureName": "idle.png",
+    "format": 3,
+    "uuid": "798d49a5-d6f7-445c-8f4f-7e8e9ef05a69",
+    "textureUuid": "a573aa03-fef0-40fd-acd2-a8f62ce3071e@6c48a"
+  }
+}

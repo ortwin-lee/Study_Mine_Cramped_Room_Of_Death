@@ -1,0 +1,63 @@
+{
+  "ver": "1.0.8",
+  "importer": "sprite-atlas",
+  "imported": true,
+  "uuid": "1da69ddf-ca8e-49b7-b8fb-a8ed73e337c3",
+  "files": [
+    ".json"
+  ],
+  "subMetas": {
+    "aef61": {
+      "importer": "sprite-frame",
+      "uuid": "1da69ddf-ca8e-49b7-b8fb-a8ed73e337c3@aef61",
+      "displayName": "",
+      "id": "aef61",
+      "name": "spikes (22)",
+      "userData": {
+        "trimType": "auto",
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 0,
+        "offsetY": 0,
+        "trimX": 0,
+        "trimY": 0,
+        "width": 320,
+        "height": 320,
+        "rawWidth": 320,
+        "rawHeight": 320,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "pixelsToUnit": 100,
+        "pivotX": 0.5,
+        "pivotY": 0.5,
+        "meshType": 0,
+        "vertices": {
+          "rawPosition": [],
+          "indexes": [],
+          "uv": [],
+          "nuv": [],
+          "minPos": [],
+          "maxPos": []
+        },
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "72fc08aa-1bf3-4083-a8a2-67b05ad9ddce@6c48a",
+        "atlasUuid": "1da69ddf-ca8e-49b7-b8fb-a8ed73e337c3"
+      },
+      "ver": "1.0.11",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "atlasTextureName": "zero.png",
+    "format": 3,
+    "uuid": "1da69ddf-ca8e-49b7-b8fb-a8ed73e337c3",
+    "textureUuid": "72fc08aa-1bf3-4083-a8a2-67b05ad9ddce@6c48a"
+  }
+}
