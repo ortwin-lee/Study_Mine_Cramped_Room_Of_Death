@@ -7,6 +7,7 @@ import { TILE_HEIGHT, TILE_WIDTH } from "../Const";
 import DataManager from "../Runtime/DataManager";
 import EventManager from "../Runtime/EventManager";
 import { EVENT_ENUM } from "../Enum";
+import { PlayerManager } from "../Player/PlayerManager";
 const { ccclass } = _decorator;
 
 @ccclass("BattleManager")
@@ -39,6 +40,7 @@ export class BattleManager extends Component {
             DataManager.Instance.mapColumnCount = this.level.mapInfo.length || 0;
             DataManager.Instance.mapRowCount = this.level.mapInfo[0].length || 0;
             this.generateTileMap();
+            this.generatePlayer();
         }
     }
 
@@ -72,5 +74,12 @@ export class BattleManager extends Component {
         const disY = (TILE_HEIGHT * mapRowCount) / 2 + 120;
 
         this.stage.setPosition(-disX, disY);
+    }
+
+    generatePlayer() {
+        const player = createUINode();
+        player.setParent(this.stage);
+        const playerManager = player.addComponent(PlayerManager);
+        playerManager.init();
     }
 }
