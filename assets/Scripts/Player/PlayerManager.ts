@@ -1,18 +1,15 @@
+import { _decorator, Component, Sprite, UITransform } from "cc";
+import { TILE_HEIGHT, TILE_WIDTH } from "../Const";
 import {
-    _decorator,
-    Component,
-    Sprite,
-    UITransform,
-    Animation,
-    AnimationClip,
-    animation,
-    SpriteFrame,
-    SpriteAtlas,
-} from "cc";
-import { ANIMATION_SPEED, TILE_HEIGHT, TILE_WIDTH } from "../Const";
-import { ResourceManager } from "../Runtime/ResourceManager";
-import { CONTROLLER_ENUM, EVENT_ENUM } from "../Enum";
+    CONTROLLER_ENUM,
+    DIRECTION_ENUM,
+    DIRECTION_ORDER_ENUM,
+    ENTITY_STATE_ENUM,
+    EVENT_ENUM,
+    PARAMS_NAME_ENUM,
+} from "../Enum";
 import EventManager from "../Runtime/EventManager";
+import { PlayerStateMachine } from "./PlayerStateMachine";
 const { ccclass } = _decorator;
 
 @ccclass("PlayerManager")
@@ -23,8 +20,42 @@ export class PlayerManager extends Component {
     targetY: number = 0;
     private readonly speed = 1 / 10;
 
+    fsm: PlayerStateMachine;
+
+    private _direction: DIRECTION_ENUM;
+    private _state: ENTITY_STATE_ENUM;
+
+    get direction() {
+        return this._direction;
+    }
+
+    set direction(newDirection) {
+        this._direction = newDirection;
+        this.fsm.setParams(PARAMS_NAME_ENUM.DIRECTION, DIRECTION_ORDER_ENUM[this._direction]);
+    }
+
+    get state() {
+        return this._state;
+    }
+
+    set state(newState) {
+        this._state = newState;
+        this.fsm.setParams(this._state, true);
+    }
+
     async init() {
-        await this.render();
+        const spirteComponent = this.node.addComponent(Sprite);
+        spirteComponent.sizeMode = Sprite.SizeMode.CUSTOM;
+
+        const transformComponet = this.node.getComponent(UITransform);
+        transformComponet?.setContentSize(TILE_WIDTH * 4, TILE_HEIGHT * 4);
+
+        this.fsm = this.addComponent(PlayerStateMachine);
+        await this.fsm.init();
+        this.fsm.setParams(PARAMS_NAME_ENUM.IDLE, true);
+        this.state = ENTITY_STATE_ENUM.IDLE;
+        this.direction = DIRECTION_ENUM.TOP;
+
         EventManager.Instance.on(EVENT_ENUM.PLAYER_CTRL, this.move, this);
     }
 
@@ -70,34 +101,17 @@ export class PlayerManager extends Component {
             case CONTROLLER_ENUM.RIGHT:
                 this.targetX += 1;
                 break;
+            case CONTROLLER_ENUM.TURNLEFT:
+                if (this.direction === DIRECTION_ENUM.TOP) {
+                    this.direction = DIRECTION_ENUM.LEFT;
+                } else if (this.direction === DIRECTION_ENUM.LEFT) {
+                    this.direction = DIRECTION_ENUM.BOTTOM;
+                } else if (this.direction === DIRECTION_ENUM.BOTTOM) {
+                    this.direction = DIRECTION_ENUM.RIGHT;
+                } else if (this.direction === DIRECTION_ENUM.RIGHT) {
+                    this.direction = DIRECTION_ENUM.TOP;
+                }
+                this.state = ENTITY_STATE_ENUM.TURNLEFT;
         }
-    }
-
-    async render() {
-        const spirteComponent = this.node.addComponent(Sprite);
-        spirteComponent.sizeMode = Sprite.SizeMode.CUSTOM;
-
-        const transformComponet = this.node.getComponent(UITransform);
-        transformComponet?.setContentSize(TILE_WIDTH * 4, TILE_HEIGHT * 4);
-
-        const spriteAtlas = await ResourceManager.Instance.loadRes("texture/player/idle/top/idle", SpriteAtlas);
-        const spriteFrames = spriteAtlas.getSpriteFrames();
-
-        const animationComponent = this.node.addComponent(Animation);
-
-        const animationClip = new AnimationClip();
-
-        const track = new animation.ObjectTrack();
-        track.path = new animation.TrackPath().toComponent(Sprite).toProperty("spriteFrame");
-        const frames: Array<[number, SpriteFrame]> = spriteFrames.map((item, index) => [ANIMATION_SPEED * index, item]);
-        track.channel.curve.assignSorted(frames);
-
-        // 最后将轨道添加到动画剪辑以应用
-        animationClip.addTrack(track);
-        animationClip.duration = frames.length * ANIMATION_SPEED; // 整个动画剪辑的周期
-        animationClip.wrapMode = AnimationClip.WrapMode.Loop;
-
-        animationComponent.defaultClip = animationClip;
-        animationComponent.play();
     }
 }
