@@ -1,67 +1,32 @@
-import { _decorator, Component, Sprite, UITransform } from "cc";
-import { TILE_HEIGHT, TILE_WIDTH } from "../Const";
-import {
-    CONTROLLER_ENUM,
-    DIRECTION_ENUM,
-    DIRECTION_ORDER_ENUM,
-    ENTITY_STATE_ENUM,
-    EVENT_ENUM,
-    PARAMS_NAME_ENUM,
-} from "../Enum";
+import { _decorator } from "cc";
+import { CONTROLLER_ENUM, DIRECTION_ENUM, ENTITY_STATE_ENUM, ENTITY_TYPE_ENUM, EVENT_ENUM, PARAMS_NAME_ENUM } from "../Enum";
 import EventManager from "../Runtime/EventManager";
 import { PlayerStateMachine } from "./PlayerStateMachine";
+import { EntityManager } from "../Base/EntityManager";
 const { ccclass } = _decorator;
 
 @ccclass("PlayerManager")
-export class PlayerManager extends Component {
-    x: number = 0;
-    y: number = 0;
+export class PlayerManager extends EntityManager {
     targetX: number = 0;
     targetY: number = 0;
     private readonly speed = 1 / 10;
 
-    fsm: PlayerStateMachine;
-
-    private _direction: DIRECTION_ENUM;
-    private _state: ENTITY_STATE_ENUM;
-
-    get direction() {
-        return this._direction;
-    }
-
-    set direction(newDirection) {
-        this._direction = newDirection;
-        this.fsm.setParams(PARAMS_NAME_ENUM.DIRECTION, DIRECTION_ORDER_ENUM[this._direction]);
-    }
-
-    get state() {
-        return this._state;
-    }
-
-    set state(newState) {
-        this._state = newState;
-        this.fsm.setParams(this._state, true);
-    }
-
     async init() {
-        const spirteComponent = this.node.addComponent(Sprite);
-        spirteComponent.sizeMode = Sprite.SizeMode.CUSTOM;
-
-        const transformComponet = this.node.getComponent(UITransform);
-        transformComponet?.setContentSize(TILE_WIDTH * 4, TILE_HEIGHT * 4);
-
         this.fsm = this.addComponent(PlayerStateMachine);
         await this.fsm.init();
-        this.fsm.setParams(PARAMS_NAME_ENUM.IDLE, true);
-        this.state = ENTITY_STATE_ENUM.IDLE;
-        this.direction = DIRECTION_ENUM.TOP;
-
+        super.init({
+            x: 0,
+            y: 0,
+            type: ENTITY_TYPE_ENUM.PLAYER,
+            direction: DIRECTION_ENUM.TOP,
+            state: ENTITY_STATE_ENUM.IDLE,
+        });
         EventManager.Instance.on(EVENT_ENUM.PLAYER_CTRL, this.move, this);
     }
 
     update() {
         this.updateXY();
-        this.node.setPosition((this.x - 1.5) * TILE_WIDTH, -(this.y - 1.5) * TILE_HEIGHT);
+        super.update();
     }
 
     onDestroy() {
