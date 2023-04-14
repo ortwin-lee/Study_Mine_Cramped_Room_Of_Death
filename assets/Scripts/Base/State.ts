@@ -2,6 +2,7 @@ import { AnimationClip, Sprite, SpriteAtlas, SpriteFrame, animation } from "cc";
 import { ANIMATION_SPEED } from "../Const";
 import { ResourceManager } from "../Runtime/ResourceManager";
 import { StateMachine } from "./StateMachine";
+import { sortSpriteFrame } from "../Utils";
 
 /**
  * 1. 需要知道animationClip
@@ -29,7 +30,7 @@ export default class State {
 
         const track = new animation.ObjectTrack();
         track.path = new animation.TrackPath().toComponent(Sprite).toProperty("spriteFrame");
-        const frames: Array<[number, SpriteFrame]> = spriteFrames.map((item, index) => [ANIMATION_SPEED * index, item]);
+        const frames: Array<[number, SpriteFrame]> = sortSpriteFrame(spriteFrames).map((item, index) => [ANIMATION_SPEED * index, item]);
         track.channel.curve.assignSorted(frames);
 
         // 最后将轨道添加到动画剪辑以应用
