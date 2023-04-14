@@ -8,6 +8,7 @@ import DataManager from "../Runtime/DataManager";
 import EventManager from "../Runtime/EventManager";
 import { EVENT_ENUM } from "../Enum";
 import { PlayerManager } from "../Player/PlayerManager";
+import { WoodenSkeletonManager } from "../WoodenSkeleton/WoodenSkeletonManager";
 const { ccclass } = _decorator;
 
 @ccclass("BattleManager")
@@ -41,6 +42,7 @@ export class BattleManager extends Component {
             DataManager.Instance.mapRowCount = this.level.mapInfo[0].length || 0;
             this.generateTileMap();
             this.generatePlayer();
+            this.generateEnemies();
         }
     }
 
@@ -81,5 +83,12 @@ export class BattleManager extends Component {
         player.setParent(this.stage);
         const playerManager = player.addComponent(PlayerManager);
         playerManager.init();
+    }
+
+    generateEnemies() {
+        const enemy = createUINode();
+        enemy.setParent(this.stage);
+        const woodenSkeletonManager = enemy.addComponent(WoodenSkeletonManager);
+        woodenSkeletonManager.init();
     }
 }
