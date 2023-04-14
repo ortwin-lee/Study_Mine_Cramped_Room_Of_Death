@@ -2,7 +2,7 @@ import { _decorator, Component, Node } from "cc";
 import { TileMapManager } from "../Tile/TileMapManager";
 import { createUINode } from "../Utils";
 import levels from "../Levels";
-import { ILevel } from "../Types/levelTypes";
+import { ILevel } from "../Types";
 import { TILE_HEIGHT, TILE_WIDTH } from "../Const";
 import DataManager from "../Runtime/DataManager";
 import EventManager from "../Runtime/EventManager";

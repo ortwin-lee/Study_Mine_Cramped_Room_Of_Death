@@ -10,8 +10,10 @@ export class TileMapManager extends Component {
     async init() {
         const spriteFrames = await ResourceManager.Instance.loadDir("/texture/tile/tile");
         const { mapInfo } = DataManager.Instance;
+        DataManager.Instance.tileInfo = [];
         for (let i = 0; i < mapInfo.length; i++) {
             const column = mapInfo[i];
+            DataManager.Instance.tileInfo[i] = [];
             for (let j = 0; j < column.length; j++) {
                 const item = column[j];
                 if (item.src === null || item.type === null) {
@@ -29,8 +31,9 @@ export class TileMapManager extends Component {
 
                 const node = createUINode();
                 const tileManager = node.addComponent(TileManager);
-                tileManager.init(spriteFrame, i, j);
-
+                const type = item.type;
+                tileManager.init(type, spriteFrame, i, j);
+                DataManager.Instance.tileInfo[i][j] = tileManager;
                 node.parent = this.node;
             }
         }

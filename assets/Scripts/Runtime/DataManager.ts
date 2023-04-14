@@ -1,5 +1,6 @@
 import Singleton from "../Base/Singleton";
-import { ITile } from "../Types/levelTypes";
+import { TileManager } from "../Tile/TileManager";
+import { ITile } from "../Types";
 
 export default class DataManager extends Singleton {
     static get Instance() {
@@ -10,6 +11,7 @@ export default class DataManager extends Singleton {
     mapRowCount: number;
     mapColumnCount: number;
     levelIndex: number = 1;
+    tileInfo: Array<Array<TileManager>>;
 
     reset() {
         this.mapInfo = [];

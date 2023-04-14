@@ -1,4 +1,4 @@
-import { ILevel } from "../Types/levelTypes";
+import { ILevel } from "../Types";
 import level1 from "./level1";
 import level2 from "./level2";
 

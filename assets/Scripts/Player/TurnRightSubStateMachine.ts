@@ -4,9 +4,9 @@ import { StateMachine } from "../Base/StateMachine";
 import { DIRECTION_ENUM } from "../Enum";
 
 const PREFIX_URL = "texture/player";
-const BASE_URL = "turnleft";
+const BASE_URL = "turnright";
 
-export default class TurnLeftSubStateMachine extends DirectionSubStateMachine {
+export default class TurnRightSubStateMachine extends DirectionSubStateMachine {
     constructor(fsm: StateMachine) {
         super(fsm);
         this.stateMachines.set(DIRECTION_ENUM.TOP, new State(fsm, `${PREFIX_URL}/${BASE_URL}/top/${BASE_URL}`));

@@ -1,5 +1,5 @@
 import { TILE_TYPE_ENUM } from "../Enum";
-import { ILevel } from "../Types/levelTypes";
+import { ILevel } from "../Types";
 
 const mapInfo = [
     [
@@ -183,7 +183,6 @@ const mapInfo = [
         },
     ],
 ];
-
 
 const level: ILevel = {
     mapInfo,

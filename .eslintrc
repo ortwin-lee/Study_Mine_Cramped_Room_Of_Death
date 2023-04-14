@@ -7,10 +7,10 @@
         "commonjs": true
     },
     "extends": [
-            "eslint:recommended",
-            "plugin:@typescript-eslint/eslint-recommended",
-            "plugin:@typescript-eslint/recommended",
-            "prettier/@typescript-eslint"
+        "eslint:recommended",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended",
+        "prettier/@typescript-eslint"
     ],
     "root": true,
     "globals": {
@@ -27,8 +27,8 @@
         "tsconfigRootDir": "./"
     },
     "plugins": [
-            "@typescript-eslint",
-            "prettier"
+        "@typescript-eslint",
+        "prettier"
     ],
     "rules": {
         "@typescript-eslint/explicit-function-return-type": "off",
@@ -43,8 +43,8 @@
         "@typescript-eslint/no-var-requires": "off",
         "no-self-assign": "off",
         "quotes": [
-                "error",
-                "single"
+            "error",
+            "single"
         ]
     }
 }
