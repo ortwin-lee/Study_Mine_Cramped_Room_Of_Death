@@ -3,10 +3,12 @@ import { TILE_HEIGHT, TILE_WIDTH } from "../Const";
 import { DIRECTION_ENUM, DIRECTION_ORDER_ENUM, ENTITY_STATE_ENUM, ENTITY_TYPE_ENUM, PARAMS_NAME_ENUM } from "../Enum";
 import { IEntity } from "../Types";
 import { StateMachine } from "./StateMachine";
+import { randomStringFromLength } from "../Utils";
 const { ccclass } = _decorator;
 
 @ccclass("EntityManager")
 export class EntityManager extends Component {
+    id: string = randomStringFromLength(12);
     x: number = 0;
     y: number = 0;
 

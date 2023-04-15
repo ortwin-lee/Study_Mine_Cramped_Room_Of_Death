@@ -14,6 +14,8 @@ export class PlayerManager extends EntityManager {
     targetY: number = 0;
     private readonly speed = 1 / 10;
 
+    isMoveing: boolean = false;
+
     async init() {
         this.fsm = this.addComponent(PlayerStateMachine);
         await this.fsm.init();
@@ -28,6 +30,7 @@ export class PlayerManager extends EntityManager {
         this.targetY = this.y;
 
         EventManager.Instance.on(EVENT_ENUM.PLAYER_CTRL, this.inputHandle, this);
+        EventManager.Instance.on(EVENT_ENUM.ATTACK_PLAYER, this.onDead, this);
     }
 
     update() {
@@ -37,6 +40,7 @@ export class PlayerManager extends EntityManager {
 
     onDestroy() {
         EventManager.Instance.off(EVENT_ENUM.PLAYER_CTRL, this.inputHandle, this);
+        EventManager.Instance.on(EVENT_ENUM.ATTACK_PLAYER, this.onDead, this);
     }
 
     updateXY() {
@@ -52,35 +56,57 @@ export class PlayerManager extends EntityManager {
             this.y += this.speed;
         }
 
-        if (Math.abs(this.targetX - this.x) <= 0.1 && Math.abs(this.targetY - this.y) <= 0.1) {
+        if (Math.abs(this.targetX - this.x) <= 0.1 && Math.abs(this.targetY - this.y) <= 0.1 && this.isMoveing) {
+            this.isMoveing = false;
             this.x = this.targetX;
             this.y = this.targetY;
+            EventManager.Instance.emit(EVENT_ENUM.PLAYER_MOVE_END);
         }
     }
 
     inputHandle(inputDirection: CONTROLLER_ENUM) {
-        if (this.willBlock(inputDirection)) {
-            console.log("block");
-
+        if (this.isMoveing) {
             return;
         }
-
+        if (
+            this.state === ENTITY_STATE_ENUM.DEATH ||
+            this.state === ENTITY_STATE_ENUM.AIRDEATH ||
+            this.state === ENTITY_STATE_ENUM.ATTACK
+        ) {
+            return;
+        }
+        const enemyId = this.willAttack(inputDirection);
+        if (enemyId) {
+            EventManager.Instance.emit(EVENT_ENUM.ATTACK_ENEMY, enemyId);
+            return;
+        }
+        if (this.willBlock(inputDirection)) {
+            return;
+        }
         this.move(inputDirection);
+    }
+
+    onDead(type: ENTITY_STATE_ENUM) {
+        this.state = type;
     }
 
     move(inputDirection: CONTROLLER_ENUM) {
         switch (inputDirection) {
             case CONTROLLER_ENUM.TOP:
                 this.targetY -= 1;
+                this.isMoveing = true;
                 break;
             case CONTROLLER_ENUM.BOTTOM:
                 this.targetY += 1;
+                this.isMoveing = true;
                 break;
             case CONTROLLER_ENUM.LEFT:
                 this.targetX -= 1;
+                this.isMoveing = true;
                 break;
             case CONTROLLER_ENUM.RIGHT:
                 this.targetX += 1;
+                this.isMoveing = true;
                 break;
             case CONTROLLER_ENUM.TURNLEFT:
                 if (this.direction === DIRECTION_ENUM.TOP) {
@@ -93,6 +119,7 @@ export class PlayerManager extends EntityManager {
                     this.direction = DIRECTION_ENUM.TOP;
                 }
                 this.state = ENTITY_STATE_ENUM.TURNLEFT;
+                EventManager.Instance.emit(EVENT_ENUM.PLAYER_MOVE_END);
                 break;
             case CONTROLLER_ENUM.TURNRIGHT:
                 if (this.direction === DIRECTION_ENUM.TOP) {
@@ -105,8 +132,27 @@ export class PlayerManager extends EntityManager {
                     this.direction = DIRECTION_ENUM.TOP;
                 }
                 this.state = ENTITY_STATE_ENUM.TURNRIGHT;
+                EventManager.Instance.emit(EVENT_ENUM.PLAYER_MOVE_END);
                 break;
         }
+    }
+
+    willAttack(inputDirection: CONTROLLER_ENUM) {
+        const enemies = DataManager.Instance.enemies.filter(enemy => enemy.state !== ENTITY_STATE_ENUM.DEATH);
+        const { targetX: x, targetY: y, direction } = this;
+        for (let i = 0; i < enemies.length; i++) {
+            const { x: enemyX, y: enemyY, id: enemyId } = enemies[i];
+            if (
+                (inputDirection as string) === (direction as string) &&
+                enemyX === x + IDIRECTION[direction].x * 2 &&
+                enemyY === y - IDIRECTION[direction].y * 2
+            ) {
+                this.state = ENTITY_STATE_ENUM.ATTACK;
+                return enemyId;
+            }
+        }
+
+        return "";
     }
 
     willBlock(inputDirection: CONTROLLER_ENUM) {

@@ -11,11 +11,7 @@ import { sortSpriteFrame } from "../Utils";
 export default class State {
     private animationClip: AnimationClip;
 
-    constructor(
-        private fsm: StateMachine,
-        private path: string,
-        private wrapMode: AnimationClip.WrapMode = AnimationClip.WrapMode.Normal,
-    ) {
+    constructor(private fsm: StateMachine, private path: string, private wrapMode: AnimationClip.WrapMode = AnimationClip.WrapMode.Normal) {
         this.init();
     }
 
@@ -41,6 +37,9 @@ export default class State {
     }
 
     run() {
+        if (this.fsm.animationComponent.defaultClip?.name === this.animationClip.name) {
+            return;
+        }
         this.fsm.animationComponent.defaultClip = this.animationClip;
         this.fsm.animationComponent.play();
     }

@@ -41,8 +41,8 @@ export class BattleManager extends Component {
             DataManager.Instance.mapColumnCount = this.level.mapInfo.length || 0;
             DataManager.Instance.mapRowCount = this.level.mapInfo[0].length || 0;
             this.generateTileMap();
-            this.generatePlayer();
             this.generateEnemies();
+            this.generatePlayer();
         }
     }
 
@@ -61,13 +61,30 @@ export class BattleManager extends Component {
         this.stage.setParent(this.node);
     }
 
-    generateTileMap() {
+    async generateTileMap() {
         const tileMap = createUINode();
         tileMap.setParent(this.stage);
         const tileMapManager = tileMap.addComponent(TileMapManager);
-        tileMapManager.init();
+        await tileMapManager.init();
 
         this.adaptPos();
+    }
+
+    async generatePlayer() {
+        const player = createUINode();
+        player.setParent(this.stage);
+        const playerManager = player.addComponent(PlayerManager);
+        await playerManager.init();
+        DataManager.Instance.player = playerManager;
+        EventManager.Instance.emit(EVENT_ENUM.PLAYER_BORN, true);
+    }
+
+    async generateEnemies() {
+        const enemy = createUINode();
+        enemy.setParent(this.stage);
+        const woodenSkeletonManager = enemy.addComponent(WoodenSkeletonManager);
+        await woodenSkeletonManager.init();
+        DataManager.Instance.enemies.push(woodenSkeletonManager);
     }
 
     adaptPos() {
@@ -76,19 +93,5 @@ export class BattleManager extends Component {
         const disY = (TILE_HEIGHT * mapRowCount) / 2 + 120;
 
         this.stage.setPosition(-disX, disY);
-    }
-
-    generatePlayer() {
-        const player = createUINode();
-        player.setParent(this.stage);
-        const playerManager = player.addComponent(PlayerManager);
-        playerManager.init();
-    }
-
-    generateEnemies() {
-        const enemy = createUINode();
-        enemy.setParent(this.stage);
-        const woodenSkeletonManager = enemy.addComponent(WoodenSkeletonManager);
-        woodenSkeletonManager.init();
     }
 }
