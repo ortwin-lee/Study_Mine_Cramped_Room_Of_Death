@@ -26,7 +26,6 @@ export class BurstManager extends EntityManager {
     }
 
     onDestroy() {
-        super.onDestroy();
         EventManager.Instance.off(EVENT_ENUM.PLAYER_MOVE_END, this.onBurst, this);
     }
 

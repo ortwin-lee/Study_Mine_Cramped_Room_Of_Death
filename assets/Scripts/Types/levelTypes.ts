@@ -1,4 +1,5 @@
 import { TILE_TYPE_ENUM } from "../Enum";
+import { IEntity, ISpike } from "./entityType";
 
 export interface ITile {
     src: number | null;
@@ -7,4 +8,9 @@ export interface ITile {
 
 export interface ILevel {
     mapInfo: Array<Array<ITile>>;
+    player: IEntity;
+    enemies: Array<IEntity>;
+    spikes: Array<ISpike>;
+    bursts: Array<IEntity>;
+    door: IEntity;
 }

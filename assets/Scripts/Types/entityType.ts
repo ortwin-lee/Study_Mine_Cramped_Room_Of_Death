@@ -8,6 +8,13 @@ export interface IEntity {
     direction: DIRECTION_ENUM;
 }
 
+export interface ISpike {
+    x: number;
+    y: number;
+    type: ENTITY_TYPE_ENUM;
+    curCount: number;
+}
+
 export interface IPos {
     x: number;
     y: number;

@@ -18,7 +18,6 @@ export class DoorManager extends EntityManager {
     }
 
     onDestroy() {
-        super.onDestroy();
         EventManager.Instance.off(EVENT_ENUM.DOOR_OPEN, this.onOpen, this);
     }
 

@@ -5,6 +5,7 @@ import { DoorManager } from "../Door/DoorManager";
 import { PlayerManager } from "../Player/PlayerManager";
 import { TileManager } from "../Tile/TileManager";
 import { ITile } from "../Types";
+import { SpikeManager } from "../Spike/SpikeManager";
 
 export default class DataManager extends Singleton {
     static get Instance() {
@@ -20,6 +21,7 @@ export default class DataManager extends Singleton {
     player: PlayerManager;
     enemies: EnemyManager[];
     bursts: BurstManager[];
+    spikes: SpikeManager[];
 
     reset() {
         this.mapInfo = [];
@@ -29,5 +31,6 @@ export default class DataManager extends Singleton {
         this.player = null;
         this.enemies = [];
         this.bursts = [];
+        this.spikes = [];
     }
 }

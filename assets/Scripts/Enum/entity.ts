@@ -42,4 +42,33 @@ export enum ENTITY_TYPE_ENUM {
     SKELETON_IRON = "SKELETON_IRON",
     DOOR = "DOOR",
     BURST = "BURST",
+    SPIKE_ONE = "SPIKE_ONE",
+    SPIKE_TWO = "SPIKE_TWO",
+    SPIKE_THREE = "SPIKE_THREE",
+    SPIKE_FOUR = "SPIKE_FOUR",
+}
+
+export enum SPIKE_TYPE_MAP_TOTAL_COUNT_ENUM {
+    SPIKE_ONE = 2,
+    SPIKE_TWO = 3,
+    SPIKE_THREE = 4,
+    SPIKE_FOUR = 5,
+}
+
+export enum SPIKE_COUNT_ENUM {
+    ZERO = "ZERO",
+    ONE = "ONE",
+    TWO = "TWO",
+    THREE = "THREE",
+    FOUR = "FOUR",
+    FIVE = "FIVE",
+}
+
+export enum SPIKE_COUNT_MAP_NUMBER_NUM {
+    ZERO = 0,
+    ONE = 1,
+    TWO = 2,
+    THREE = 3,
+    FOUR = 4,
+    FIVE = 5,
 }

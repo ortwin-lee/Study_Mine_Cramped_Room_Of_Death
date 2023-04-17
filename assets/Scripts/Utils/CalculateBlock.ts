@@ -49,7 +49,7 @@ const calculateAngle = function (vector1: Vec2, vector2: Vec2): RelativeDirectio
 };
 
 /**
- * 计算九宫格随人物旋转问题
+ * 计算人物旋转时受武器影响的九宫格
  * @param i 角色实际坐标
  * @param direction 角色面朝方向 正方向为笛卡尔坐标系x轴(1,0)
  * @param rotation  角色旋转方向，1为逆时针，-1为顺时针
@@ -78,12 +78,12 @@ export const calculateRotationBlock = function (i: Vec2, direction: Vec2, rotati
 };
 
 /**
- * 计算九宫格随人物移动问题
+ * 计算人物移动受将会受到人物和武器影响的九宫格
  * @param i 角色实际坐标
  * @param direction 角色面朝方向 正方向为笛卡尔坐标系x轴(1,0)
  * @param forwardDirection  角色前进方向，正方向为笛卡尔坐标系x轴(1,0)
  * @param isAxisYConvert y轴是否朝下
- * @returns 返回角色和武器在移动后的方格坐标
+ * @returns 返回角色和武器在移动后的方格坐标，以及移动相对于的人物朝向的方向
  */
 export const calculateMoveBlock = function (i: Vec2, direction: Vec2, forwardDirection: Vec2, isAxisYConvert: boolean = false) {
     const flag = isAxisYConvert ? -1 : 1;

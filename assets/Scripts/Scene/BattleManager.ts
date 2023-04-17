@@ -6,12 +6,13 @@ import { ILevel } from "../Types";
 import { TILE_HEIGHT, TILE_WIDTH } from "../Const";
 import DataManager from "../Runtime/DataManager";
 import EventManager from "../Runtime/EventManager";
-import { DIRECTION_ENUM, ENTITY_STATE_ENUM, ENTITY_TYPE_ENUM, EVENT_ENUM } from "../Enum";
+import { ENTITY_STATE_ENUM, ENTITY_TYPE_ENUM, EVENT_ENUM } from "../Enum";
 import { PlayerManager } from "../Player/PlayerManager";
 import { WoodenSkeletonManager } from "../WoodenSkeleton/WoodenSkeletonManager";
 import { DoorManager } from "../Door/DoorManager";
 import { IronSkeletonManager } from "../IronSkeleton/IronSkeletonManager";
 import { BurstManager } from "../Burst/BurstManager";
+import { SpikeManager } from "../Spike/SpikeManager";
 const { ccclass } = _decorator;
 
 @ccclass("BattleManager")
@@ -20,7 +21,9 @@ export class BattleManager extends Component {
     stage: Node;
 
     onLoad() {
+        DataManager.Instance.levelIndex = 2;
         EventManager.Instance.on(EVENT_ENUM.NEXT_LEVEL, this.nextLevel, this);
+        EventManager.Instance.on(EVENT_ENUM.PLAYER_MOVE_END, this.checkArrived, this);
     }
 
     start() {
@@ -44,7 +47,8 @@ export class BattleManager extends Component {
             DataManager.Instance.mapColumnCount = this.level.mapInfo.length || 0;
             DataManager.Instance.mapRowCount = this.level.mapInfo[0].length || 0;
             this.generateTileMap();
-            this.generateBurst();
+            this.generateBursts();
+            this.generateSpikes();
             this.generateDoor();
             this.generateEnemies();
             this.generatePlayer();
@@ -75,31 +79,39 @@ export class BattleManager extends Component {
         this.adaptPos();
     }
 
-    async generateBurst() {
-        const burst = createUINode();
-        burst.setParent(this.stage);
-        const burstManager = burst.addComponent(BurstManager);
-        await burstManager.init({
-            x: 2,
-            y: 6,
-            type: ENTITY_TYPE_ENUM.BURST,
-            direction: DIRECTION_ENUM.TOP,
-            state: ENTITY_STATE_ENUM.IDLE,
-        });
-        DataManager.Instance.bursts.push(burstManager);
+    async generateBursts() {
+        const promise = [];
+        for (let i = 0; i < this.level.bursts.length; i++) {
+            const burst = this.level.bursts[i];
+            const node = createUINode();
+            node.setParent(this.stage);
+            const burstManager = node.addComponent(BurstManager);
+            promise.push(burstManager.init(burst));
+            DataManager.Instance.bursts.push(burstManager);
+        }
+
+        await Promise.all(promise);
+    }
+
+    async generateSpikes() {
+        const promise = [];
+        for (let i = 0; i < this.level.spikes.length; i++) {
+            const spike = this.level.spikes[i];
+            const node = createUINode();
+            node.setParent(this.stage);
+            const spikeManager = node.addComponent(SpikeManager);
+            promise.push(spikeManager.init(spike));
+            DataManager.Instance.spikes.push(spikeManager);
+        }
+
+        await Promise.all(promise);
     }
 
     async generateDoor() {
         const door = createUINode();
         door.setParent(this.stage);
         const doorManager = door.addComponent(DoorManager);
-        await doorManager.init({
-            x: 7,
-            y: 8,
-            type: ENTITY_TYPE_ENUM.DOOR,
-            direction: DIRECTION_ENUM.TOP,
-            state: ENTITY_STATE_ENUM.IDLE,
-        });
+        await doorManager.init(this.level.door);
         DataManager.Instance.door = doorManager;
     }
 
@@ -107,41 +119,24 @@ export class BattleManager extends Component {
         const player = createUINode();
         player.setParent(this.stage);
         const playerManager = player.addComponent(PlayerManager);
-        await playerManager.init({
-            x: 2,
-            y: 8,
-            type: ENTITY_TYPE_ENUM.PLAYER,
-            direction: DIRECTION_ENUM.TOP,
-            state: ENTITY_STATE_ENUM.IDLE,
-        });
+        await playerManager.init(this.level.player);
         DataManager.Instance.player = playerManager;
         EventManager.Instance.emit(EVENT_ENUM.PLAYER_BORN, true);
     }
 
     async generateEnemies() {
-        const enemy1 = createUINode();
-        enemy1.setParent(this.stage);
-        const woodenSkeletonManager = enemy1.addComponent(WoodenSkeletonManager);
-        await woodenSkeletonManager.init({
-            x: 2,
-            y: 4,
-            type: ENTITY_TYPE_ENUM.SKELETON_WOODEN,
-            direction: DIRECTION_ENUM.TOP,
-            state: ENTITY_STATE_ENUM.IDLE,
-        });
-        DataManager.Instance.enemies.push(woodenSkeletonManager);
+        const promise = [];
+        for (let i = 0; i < this.level.enemies.length; i++) {
+            const enemy = this.level.enemies[i];
+            const node = createUINode();
+            node.setParent(this.stage);
+            const Manager = enemy.type === ENTITY_TYPE_ENUM.SKELETON_IRON ? WoodenSkeletonManager : IronSkeletonManager;
+            const manager = node.addComponent(Manager);
+            promise.push(manager.init(enemy));
+            DataManager.Instance.enemies.push(manager);
+        }
 
-        const enemy2 = createUINode();
-        enemy2.setParent(this.stage);
-        const ironSkeletonManager = enemy2.addComponent(IronSkeletonManager);
-        await ironSkeletonManager.init({
-            x: 2,
-            y: 2,
-            type: ENTITY_TYPE_ENUM.SKELETON_IRON,
-            direction: DIRECTION_ENUM.TOP,
-            state: ENTITY_STATE_ENUM.IDLE,
-        });
-        DataManager.Instance.enemies.push(ironSkeletonManager);
+        await Promise.all(promise);
     }
 
     adaptPos() {
@@ -150,5 +145,13 @@ export class BattleManager extends Component {
         const disY = (TILE_HEIGHT * mapRowCount) / 2 + 120;
 
         this.stage.setPosition(-disX, disY);
+    }
+
+    checkArrived() {
+        const { x: playerX, y: playerY } = DataManager.Instance.player;
+        const { x: doorX, y: doorY, state: doorState } = DataManager.Instance.door;
+        if (playerX === doorX && playerY === doorY && doorState === ENTITY_STATE_ENUM.DEATH) {
+            EventManager.Instance.emit(EVENT_ENUM.NEXT_LEVEL);
+        }
     }
 }
