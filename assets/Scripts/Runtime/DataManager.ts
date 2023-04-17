@@ -1,9 +1,10 @@
+import { EnemyManager } from "../Base/EnemyManager";
 import Singleton from "../Base/Singleton";
+import { BurstManager } from "../Burst/BurstManager";
 import { DoorManager } from "../Door/DoorManager";
 import { PlayerManager } from "../Player/PlayerManager";
 import { TileManager } from "../Tile/TileManager";
 import { ITile } from "../Types";
-import { WoodenSkeletonManager } from "../WoodenSkeleton/WoodenSkeletonManager";
 
 export default class DataManager extends Singleton {
     static get Instance() {
@@ -17,7 +18,8 @@ export default class DataManager extends Singleton {
     tileInfo: Array<Array<TileManager>>;
     door: DoorManager;
     player: PlayerManager;
-    enemies: WoodenSkeletonManager[];
+    enemies: EnemyManager[];
+    bursts: BurstManager[];
 
     reset() {
         this.mapInfo = [];
@@ -26,5 +28,6 @@ export default class DataManager extends Singleton {
         this.tileInfo = [];
         this.player = null;
         this.enemies = [];
+        this.bursts = [];
     }
 }

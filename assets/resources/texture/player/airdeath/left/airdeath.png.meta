@@ -11,7 +11,7 @@
     "6c48a": {
       "importer": "texture",
       "uuid": "b6c34e7a-779d-45c0-9cec-6d2af3495535@6c48a",
-      "displayName": "death",
+      "displayName": "airdeath",
       "id": "6c48a",
       "name": "texture",
       "userData": {
@@ -35,7 +35,7 @@
     "f9941": {
       "importer": "sprite-frame",
       "uuid": "b6c34e7a-779d-45c0-9cec-6d2af3495535@f9941",
-      "displayName": "death",
+      "displayName": "airdeath",
       "id": "f9941",
       "name": "spriteFrame",
       "userData": {
