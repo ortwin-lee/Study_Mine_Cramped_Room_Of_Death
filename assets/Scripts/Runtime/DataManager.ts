@@ -1,4 +1,5 @@
 import Singleton from "../Base/Singleton";
+import { DoorManager } from "../Door/DoorManager";
 import { PlayerManager } from "../Player/PlayerManager";
 import { TileManager } from "../Tile/TileManager";
 import { ITile } from "../Types";
@@ -14,6 +15,7 @@ export default class DataManager extends Singleton {
     mapColumnCount: number;
     levelIndex: number = 1;
     tileInfo: Array<Array<TileManager>>;
+    door: DoorManager;
     player: PlayerManager;
     enemies: WoodenSkeletonManager[];
 

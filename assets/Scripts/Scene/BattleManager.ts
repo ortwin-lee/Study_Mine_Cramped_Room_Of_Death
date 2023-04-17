@@ -9,6 +9,7 @@ import EventManager from "../Runtime/EventManager";
 import { EVENT_ENUM } from "../Enum";
 import { PlayerManager } from "../Player/PlayerManager";
 import { WoodenSkeletonManager } from "../WoodenSkeleton/WoodenSkeletonManager";
+import { DoorManager } from "../Door/DoorManager";
 const { ccclass } = _decorator;
 
 @ccclass("BattleManager")
@@ -41,6 +42,7 @@ export class BattleManager extends Component {
             DataManager.Instance.mapColumnCount = this.level.mapInfo.length || 0;
             DataManager.Instance.mapRowCount = this.level.mapInfo[0].length || 0;
             this.generateTileMap();
+            this.generateDoor();
             this.generateEnemies();
             this.generatePlayer();
         }
@@ -68,6 +70,14 @@ export class BattleManager extends Component {
         await tileMapManager.init();
 
         this.adaptPos();
+    }
+
+    async generateDoor() {
+        const door = createUINode();
+        door.setParent(this.stage);
+        const doorManager = door.addComponent(DoorManager);
+        await doorManager.init();
+        DataManager.Instance.door = doorManager;
     }
 
     async generatePlayer() {
