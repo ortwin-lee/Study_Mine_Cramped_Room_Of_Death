@@ -15,6 +15,7 @@ import { BurstManager } from "../Burst/BurstManager";
 import { SpikeManager } from "../Spike/SpikeManager";
 import { SmokeManager } from "../Smoke/SmokeManager";
 import FaderManager from "../Runtime/FaderManager";
+import { ShakeManager } from "../UI/ShakeManager";
 const { ccclass } = _decorator;
 
 @ccclass("BattleManager")
@@ -23,7 +24,7 @@ export class BattleManager extends Component {
     stage: Node;
 
     onLoad() {
-        DataManager.Instance.levelIndex = 1;
+        DataManager.Instance.levelIndex = 4;
         EventManager.Instance.on(EVENT_ENUM.NEXT_LEVEL, this.nextLevel, this);
         EventManager.Instance.on(EVENT_ENUM.PLAYER_MOVE_END, this.checkArrived, this);
         EventManager.Instance.on(EVENT_ENUM.SHOW_SMOKE, this.generateSmoke, this);
@@ -78,6 +79,7 @@ export class BattleManager extends Component {
     generateStage() {
         this.stage = createUINode();
         this.stage.setParent(this.node);
+        this.stage.addComponent(ShakeManager);
     }
 
     async generateTileMap() {
@@ -179,7 +181,7 @@ export class BattleManager extends Component {
         const { mapRowCount, mapColumnCount } = DataManager.Instance;
         const disX = (TILE_WIDTH * mapColumnCount) / 2;
         const disY = (TILE_HEIGHT * mapRowCount) / 2 + 120;
-
+        this.stage.getComponent(ShakeManager)?.stop();
         this.stage.setPosition(-disX, disY);
     }
 

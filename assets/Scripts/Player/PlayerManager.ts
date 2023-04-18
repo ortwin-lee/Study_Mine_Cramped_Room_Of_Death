@@ -1,5 +1,13 @@
 import { _decorator } from "cc";
-import { CONTROLLER_ENUM, DIRECTION_ENUM, ENTITY_STATE_ENUM, ENTITY_TYPE_ENUM, EVENT_ENUM } from "../Enum";
+import {
+    CONTROLLER_ENUM,
+    DIRECTION_ENUM,
+    DIRECTION_ORDER_ENUM,
+    ENTITY_STATE_ENUM,
+    ENTITY_TYPE_ENUM,
+    EVENT_ENUM,
+    SHAKE_TYPE_ENUM,
+} from "../Enum";
 import EventManager from "../Runtime/EventManager";
 import { PlayerStateMachine } from "./PlayerStateMachine";
 import { EntityManager } from "../Base/EntityManager";
@@ -65,6 +73,7 @@ export class PlayerManager extends EntityManager {
         if (this.isMoveing) {
             return;
         }
+
         if (
             this.state === ENTITY_STATE_ENUM.DEATH ||
             this.state === ENTITY_STATE_ENUM.AIRDEATH ||
@@ -72,21 +81,35 @@ export class PlayerManager extends EntityManager {
         ) {
             return;
         }
+
         const enemyId = this.willAttack(inputDirection);
         if (enemyId) {
             EventManager.Instance.emit(EVENT_ENUM.ATTACK_ENEMY, enemyId);
             EventManager.Instance.emit(EVENT_ENUM.DOOR_OPEN);
             return;
         }
+
         if (this.willBlock(inputDirection)) {
+            const input: number = DIRECTION_ORDER_ENUM[inputDirection] as number;
+            const direction: number = DIRECTION_ORDER_ENUM[this.direction] as number;
+            if (input >= 0) {
+                EventManager.Instance.emit(EVENT_ENUM.SCREEN_SHAKE, DIRECTION_ORDER_ENUM[input] as string);
+            } else {
+                const inputSign: number = IROTATION[inputDirection] as number;
+                EventManager.Instance.emit(EVENT_ENUM.SCREEN_SHAKE, DIRECTION_ORDER_ENUM[(direction + inputSign + 4) % 4] as string);
+            }
             return;
         }
+
         this.move(inputDirection);
     }
 
     onDead(type: ENTITY_STATE_ENUM) {
-        console.log(this.fsm);
         this.state = type;
+    }
+
+    onAttackShake(type: SHAKE_TYPE_ENUM) {
+        EventManager.Instance.emit(EVENT_ENUM.SCREEN_SHAKE, type);
     }
 
     move(inputDirection: CONTROLLER_ENUM) {
@@ -175,6 +198,7 @@ export class PlayerManager extends EntityManager {
         if (inputDirection === CONTROLLER_ENUM.TURNLEFT || inputDirection === CONTROLLER_ENUM.TURNRIGHT) {
             const { first, second, third } = calculateRotationBlock({ x, y }, IDIRECTION[direction], IROTATION[inputDirection], true);
 
+            //为方便维护，下面的代码不做优化处理
             //判断门
             if (
                 doorState !== ENTITY_STATE_ENUM.DEATH &&

@@ -30,10 +30,12 @@ export enum ENTITY_STATE_ENUM {
 }
 
 export enum DIRECTION_ORDER_ENUM {
-    TOP = 0,
-    BOTTOM = 1,
+    RIGHT = 0,
+    TOP = 1,
     LEFT = 2,
-    RIGHT = 3,
+    BOTTOM = 3,
+    TURNLEFT = -1,
+    TURNRIGHT = -2,
 }
 
 export enum ENTITY_TYPE_ENUM {
