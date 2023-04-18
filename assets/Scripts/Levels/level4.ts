@@ -205,7 +205,7 @@ const player: IEntity = {
 const enemies: Array<IEntity> = [
     {
         x: 1,
-        y: 3,
+        y: 1,
         direction: DIRECTION_ENUM.BOTTOM,
         state: ENTITY_STATE_ENUM.IDLE,
         type: ENTITY_TYPE_ENUM.SKELETON_IRON,

@@ -6,6 +6,7 @@ import { PlayerManager } from "../Player/PlayerManager";
 import { TileManager } from "../Tile/TileManager";
 import { ITile } from "../Types";
 import { SpikeManager } from "../Spike/SpikeManager";
+import { SmokeManager } from "../Smoke/SmokeManager";
 
 export default class DataManager extends Singleton {
     static get Instance() {
@@ -22,6 +23,7 @@ export default class DataManager extends Singleton {
     enemies: EnemyManager[];
     bursts: BurstManager[];
     spikes: SpikeManager[];
+    smokes: SmokeManager[];
 
     reset() {
         this.mapInfo = [];
@@ -32,5 +34,6 @@ export default class DataManager extends Singleton {
         this.enemies = [];
         this.bursts = [];
         this.spikes = [];
+        this.smokes = [];
     }
 }

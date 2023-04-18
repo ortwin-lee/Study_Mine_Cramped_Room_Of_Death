@@ -6,13 +6,14 @@ import { ILevel } from "../Types";
 import { TILE_HEIGHT, TILE_WIDTH } from "../Const";
 import DataManager from "../Runtime/DataManager";
 import EventManager from "../Runtime/EventManager";
-import { ENTITY_STATE_ENUM, ENTITY_TYPE_ENUM, EVENT_ENUM } from "../Enum";
+import { DIRECTION_ENUM, ENTITY_STATE_ENUM, ENTITY_TYPE_ENUM, EVENT_ENUM } from "../Enum";
 import { PlayerManager } from "../Player/PlayerManager";
 import { WoodenSkeletonManager } from "../WoodenSkeleton/WoodenSkeletonManager";
 import { DoorManager } from "../Door/DoorManager";
 import { IronSkeletonManager } from "../IronSkeleton/IronSkeletonManager";
 import { BurstManager } from "../Burst/BurstManager";
 import { SpikeManager } from "../Spike/SpikeManager";
+import { SmokeManager } from "../Smoke/SmokeManager";
 const { ccclass } = _decorator;
 
 @ccclass("BattleManager")
@@ -21,9 +22,10 @@ export class BattleManager extends Component {
     stage: Node;
 
     onLoad() {
-        DataManager.Instance.levelIndex = 2;
+        DataManager.Instance.levelIndex = 1;
         EventManager.Instance.on(EVENT_ENUM.NEXT_LEVEL, this.nextLevel, this);
         EventManager.Instance.on(EVENT_ENUM.PLAYER_MOVE_END, this.checkArrived, this);
+        EventManager.Instance.on(EVENT_ENUM.SHOW_SMOKE, this.generateSmoke, this);
     }
 
     start() {
@@ -35,6 +37,8 @@ export class BattleManager extends Component {
 
     onDestroy() {
         EventManager.Instance.off(EVENT_ENUM.NEXT_LEVEL, this.nextLevel, this);
+        EventManager.Instance.off(EVENT_ENUM.PLAYER_MOVE_END, this.checkArrived, this);
+        EventManager.Instance.off(EVENT_ENUM.SHOW_SMOKE, this.generateSmoke, this);
     }
 
     initLevel() {
@@ -118,6 +122,7 @@ export class BattleManager extends Component {
     async generatePlayer() {
         const player = createUINode();
         player.setParent(this.stage);
+        player.setSiblingIndex(player.parent.children.length - 1);
         const playerManager = player.addComponent(PlayerManager);
         await playerManager.init(this.level.player);
         DataManager.Instance.player = playerManager;
@@ -139,6 +144,31 @@ export class BattleManager extends Component {
         await Promise.all(promise);
     }
 
+    async generateSmoke(x: number, y: number, direction: DIRECTION_ENUM) {
+        const item = DataManager.Instance.smokes.find(smoke => smoke.state === ENTITY_STATE_ENUM.DEATH);
+        if (item) {
+            item.x = x;
+            item.y = y;
+            item.direction = direction;
+            item.state = ENTITY_STATE_ENUM.IDLE;
+            item.node.setSiblingIndex(item.node.parent.children.length - 2);
+            // item.node.setPosition((x - 1.5) * TILE_WIDTH, -(y - 1.5) * TILE_HEIGHT);
+        } else {
+            const smoke = createUINode();
+            smoke.setParent(this.stage);
+            smoke.setSiblingIndex(smoke.parent.children.length - 2);
+            const smokeManager = smoke.addComponent(SmokeManager);
+            await smokeManager.init({
+                x,
+                y,
+                direction,
+                state: ENTITY_STATE_ENUM.IDLE,
+                type: ENTITY_TYPE_ENUM.SMOKE,
+            });
+            DataManager.Instance.smokes.push(smokeManager);
+        }
+    }
+
     adaptPos() {
         const { mapRowCount, mapColumnCount } = DataManager.Instance;
         const disX = (TILE_WIDTH * mapColumnCount) / 2;
@@ -148,6 +178,9 @@ export class BattleManager extends Component {
     }
 
     checkArrived() {
+        if (!DataManager.Instance.player || !DataManager.Instance.door) {
+            return;
+        }
         const { x: playerX, y: playerY } = DataManager.Instance.player;
         const { x: doorX, y: doorY, state: doorState } = DataManager.Instance.door;
         if (playerX === doorX && playerY === doorY && doorState === ENTITY_STATE_ENUM.DEATH) {
