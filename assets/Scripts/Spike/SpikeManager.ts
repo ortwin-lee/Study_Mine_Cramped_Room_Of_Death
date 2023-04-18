@@ -16,10 +16,10 @@ export class SpikeManager extends Component {
     y: number = 0;
 
     fsm: StateMachine;
+    type: ENTITY_TYPE_ENUM;
 
     private _curCount: number;
     private _totalCount: number;
-    private type: ENTITY_TYPE_ENUM;
 
     get curCount() {
         return this._curCount;

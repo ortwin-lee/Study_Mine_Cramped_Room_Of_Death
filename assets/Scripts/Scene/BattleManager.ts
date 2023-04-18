@@ -1,12 +1,12 @@
-import { _decorator, Component, Node } from "cc";
+import { _decorator, Component, director, Node } from "cc";
 import { TileMapManager } from "../Tile/TileMapManager";
 import { createUINode } from "../Utils";
 import levels from "../Levels";
-import { ILevel } from "../Types";
+import { ILevel, IRecord } from "../Types";
 import { TILE_HEIGHT, TILE_WIDTH } from "../Const";
 import DataManager from "../Runtime/DataManager";
 import EventManager from "../Runtime/EventManager";
-import { DIRECTION_ENUM, ENTITY_STATE_ENUM, ENTITY_TYPE_ENUM, EVENT_ENUM } from "../Enum";
+import { DIRECTION_ENUM, ENTITY_STATE_ENUM, ENTITY_TYPE_ENUM, EVENT_ENUM, SCENE_ENUM } from "../Enum";
 import { PlayerManager } from "../Player/PlayerManager";
 import { WoodenSkeletonManager } from "../WoodenSkeleton/WoodenSkeletonManager";
 import { DoorManager } from "../Door/DoorManager";
@@ -22,12 +22,17 @@ const { ccclass } = _decorator;
 export class BattleManager extends Component {
     level: ILevel;
     stage: Node;
+    private inited: boolean = false;
 
     onLoad() {
-        DataManager.Instance.levelIndex = 4;
+        DataManager.Instance.levelIndex = 1;
         EventManager.Instance.on(EVENT_ENUM.NEXT_LEVEL, this.nextLevel, this);
         EventManager.Instance.on(EVENT_ENUM.PLAYER_MOVE_END, this.checkArrived, this);
         EventManager.Instance.on(EVENT_ENUM.SHOW_SMOKE, this.generateSmoke, this);
+        EventManager.Instance.on(EVENT_ENUM.RECORD_STEP, this.record, this);
+        EventManager.Instance.on(EVENT_ENUM.REVOKE_STEP, this.revoke, this);
+        EventManager.Instance.on(EVENT_ENUM.RESTART_LEVEL, this.initLevel, this);
+        EventManager.Instance.on(EVENT_ENUM.OUT_BATTLE, this.outBattle, this);
     }
 
     start() {
@@ -41,12 +46,22 @@ export class BattleManager extends Component {
         EventManager.Instance.off(EVENT_ENUM.NEXT_LEVEL, this.nextLevel, this);
         EventManager.Instance.off(EVENT_ENUM.PLAYER_MOVE_END, this.checkArrived, this);
         EventManager.Instance.off(EVENT_ENUM.SHOW_SMOKE, this.generateSmoke, this);
+        EventManager.Instance.off(EVENT_ENUM.RECORD_STEP, this.record, this);
+        EventManager.Instance.off(EVENT_ENUM.REVOKE_STEP, this.revoke, this);
+        EventManager.Instance.off(EVENT_ENUM.RESTART_LEVEL, this.initLevel, this);
+        EventManager.Instance.off(EVENT_ENUM.OUT_BATTLE, this.outBattle, this);
     }
 
     async initLevel() {
         const level = levels[`level${DataManager.Instance.levelIndex}`];
         if (level) {
-            await FaderManager.Instance.fadeIn();
+            if (this.inited) {
+                await FaderManager.Instance.fadeIn();
+            } else {
+                await FaderManager.Instance.mask();
+                this.inited = true;
+            }
+
             this.clearLevel();
 
             this.level = level;
@@ -63,6 +78,8 @@ export class BattleManager extends Component {
             ]);
 
             await FaderManager.Instance.fadeOut();
+        } else {
+            this.outBattle();
         }
     }
 
@@ -143,7 +160,7 @@ export class BattleManager extends Component {
             const enemy = this.level.enemies[i];
             const node = createUINode();
             node.setParent(this.stage);
-            const Manager = enemy.type === ENTITY_TYPE_ENUM.SKELETON_IRON ? WoodenSkeletonManager : IronSkeletonManager;
+            const Manager = enemy.type === ENTITY_TYPE_ENUM.SKELETON_WOODEN ? WoodenSkeletonManager : IronSkeletonManager;
             const manager = node.addComponent(Manager);
             promise.push(manager.init(enemy));
             DataManager.Instance.enemies.push(manager);
@@ -193,6 +210,75 @@ export class BattleManager extends Component {
         const { x: doorX, y: doorY, state: doorState } = DataManager.Instance.door;
         if (playerX === doorX && playerY === doorY && doorState === ENTITY_STATE_ENUM.DEATH) {
             EventManager.Instance.emit(EVENT_ENUM.NEXT_LEVEL);
+        }
+    }
+
+    record() {
+        const item: IRecord = {
+            player: {
+                x: DataManager.Instance.player.x,
+                y: DataManager.Instance.player.y,
+                type: DataManager.Instance.player.type,
+                state:
+                    DataManager.Instance.player.state === ENTITY_STATE_ENUM.IDLE ||
+                    DataManager.Instance.player.state === ENTITY_STATE_ENUM.DEATH ||
+                    DataManager.Instance.player.state === ENTITY_STATE_ENUM.AIRDEATH
+                        ? DataManager.Instance.player.state
+                        : ENTITY_STATE_ENUM.IDLE,
+                direction: DataManager.Instance.player.direction,
+            },
+            door: {
+                x: DataManager.Instance.door.x,
+                y: DataManager.Instance.door.y,
+                type: DataManager.Instance.door.type,
+                state: DataManager.Instance.door.state,
+                direction: DataManager.Instance.door.direction,
+            },
+            enemies: DataManager.Instance.enemies.map(({ x, y, type, state, direction }) => ({ x, y, type, state, direction })),
+            bursts: DataManager.Instance.bursts.map(({ x, y, type, state, direction }) => ({ x, y, type, state, direction })),
+            spikes: DataManager.Instance.spikes.map(({ x, y, type, curCount }) => ({ x, y, type, curCount })),
+        };
+
+        DataManager.Instance.records.push(item);
+    }
+
+    async outBattle() {
+        await FaderManager.Instance.fadeIn();
+        director.loadScene(SCENE_ENUM.Start);
+    }
+
+    revoke() {
+        const item = DataManager.Instance.records.pop();
+        if (item) {
+            DataManager.Instance.player.x = DataManager.Instance.player.targetX = item.player.x;
+            DataManager.Instance.player.y = DataManager.Instance.player.targetY = item.player.y;
+            DataManager.Instance.player.state = item.player.state;
+            DataManager.Instance.player.direction = item.player.direction;
+
+            DataManager.Instance.door.x = item.door.x;
+            DataManager.Instance.door.y = item.door.y;
+            DataManager.Instance.door.state = item.door.state;
+            DataManager.Instance.door.direction = item.door.direction;
+
+            for (let i = 0; i < DataManager.Instance.enemies.length; i++) {
+                DataManager.Instance.enemies[i].x = item.enemies[i].x;
+                DataManager.Instance.enemies[i].y = item.enemies[i].y;
+                DataManager.Instance.enemies[i].state = item.enemies[i].state;
+                DataManager.Instance.enemies[i].direction = item.enemies[i].direction;
+            }
+
+            for (let i = 0; i < DataManager.Instance.bursts.length; i++) {
+                DataManager.Instance.bursts[i].x = item.bursts[i].x;
+                DataManager.Instance.bursts[i].y = item.bursts[i].y;
+                DataManager.Instance.bursts[i].state = item.bursts[i].state;
+            }
+
+            for (let i = 0; i < DataManager.Instance.spikes.length; i++) {
+                DataManager.Instance.spikes[i].x = item.spikes[i].x;
+                DataManager.Instance.spikes[i].y = item.spikes[i].y;
+                DataManager.Instance.spikes[i].curCount = item.spikes[i].curCount;
+                DataManager.Instance.spikes[i].type = item.spikes[i].type;
+            }
         }
     }
 }

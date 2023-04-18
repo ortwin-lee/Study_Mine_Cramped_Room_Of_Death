@@ -4,7 +4,7 @@ import { BurstManager } from "../Burst/BurstManager";
 import { DoorManager } from "../Door/DoorManager";
 import { PlayerManager } from "../Player/PlayerManager";
 import { TileManager } from "../Tile/TileManager";
-import { ITile } from "../Types";
+import { IRecord, ITile } from "../Types";
 import { SpikeManager } from "../Spike/SpikeManager";
 import { SmokeManager } from "../Smoke/SmokeManager";
 
@@ -24,6 +24,7 @@ export default class DataManager extends Singleton {
     bursts: BurstManager[];
     spikes: SpikeManager[];
     smokes: SmokeManager[];
+    records: IRecord[];
 
     reset() {
         this.mapInfo = [];
@@ -35,5 +36,6 @@ export default class DataManager extends Singleton {
         this.bursts = [];
         this.spikes = [];
         this.smokes = [];
+        this.records = [];
     }
 }

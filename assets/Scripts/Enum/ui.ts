@@ -5,3 +5,8 @@ export enum SHAKE_TYPE_ENUM {
     RIGHT = "RIGHT",
 }
 
+export enum SCENE_ENUM {
+    Loading = "Loading",
+    Start = "Start",
+    Battle = "Battle",
+}
