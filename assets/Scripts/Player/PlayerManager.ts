@@ -98,8 +98,8 @@ export class PlayerManager extends EntityManager {
             if (input >= 0) {
                 EventManager.Instance.emit(EVENT_ENUM.SCREEN_SHAKE, DIRECTION_ORDER_ENUM[input] as string);
             } else {
-                const inputSign: number = IROTATION[inputDirection] as number;
-                EventManager.Instance.emit(EVENT_ENUM.SCREEN_SHAKE, DIRECTION_ORDER_ENUM[(direction + inputSign + 4) % 4] as string);
+                const rotateSign: number = IROTATION[inputDirection] as number;
+                EventManager.Instance.emit(EVENT_ENUM.SCREEN_SHAKE, DIRECTION_ORDER_ENUM[(direction + rotateSign + 4) % 4] as string);
             }
             return;
         }
@@ -117,53 +117,19 @@ export class PlayerManager extends EntityManager {
 
     move(inputDirection: CONTROLLER_ENUM) {
         EventManager.Instance.emit(EVENT_ENUM.RECORD_STEP);
-        switch (inputDirection) {
-            case CONTROLLER_ENUM.TOP:
-                this.targetY -= 1;
-                this.isMoveing = true;
-                this.showSmoke(DIRECTION_ENUM.TOP);
-                break;
-            case CONTROLLER_ENUM.BOTTOM:
-                this.targetY += 1;
-                this.isMoveing = true;
-                this.showSmoke(DIRECTION_ENUM.BOTTOM);
-                break;
-            case CONTROLLER_ENUM.LEFT:
-                this.targetX -= 1;
-                this.isMoveing = true;
-                this.showSmoke(DIRECTION_ENUM.LEFT);
-                break;
-            case CONTROLLER_ENUM.RIGHT:
-                this.targetX += 1;
-                this.isMoveing = true;
-                this.showSmoke(DIRECTION_ENUM.RIGHT);
-                break;
-            case CONTROLLER_ENUM.TURNLEFT:
-                if (this.direction === DIRECTION_ENUM.TOP) {
-                    this.direction = DIRECTION_ENUM.LEFT;
-                } else if (this.direction === DIRECTION_ENUM.LEFT) {
-                    this.direction = DIRECTION_ENUM.BOTTOM;
-                } else if (this.direction === DIRECTION_ENUM.BOTTOM) {
-                    this.direction = DIRECTION_ENUM.RIGHT;
-                } else if (this.direction === DIRECTION_ENUM.RIGHT) {
-                    this.direction = DIRECTION_ENUM.TOP;
-                }
-                this.state = ENTITY_STATE_ENUM.TURNLEFT;
-                EventManager.Instance.emit(EVENT_ENUM.PLAYER_MOVE_END);
-                break;
-            case CONTROLLER_ENUM.TURNRIGHT:
-                if (this.direction === DIRECTION_ENUM.TOP) {
-                    this.direction = DIRECTION_ENUM.RIGHT;
-                } else if (this.direction === DIRECTION_ENUM.RIGHT) {
-                    this.direction = DIRECTION_ENUM.BOTTOM;
-                } else if (this.direction === DIRECTION_ENUM.BOTTOM) {
-                    this.direction = DIRECTION_ENUM.LEFT;
-                } else if (this.direction === DIRECTION_ENUM.LEFT) {
-                    this.direction = DIRECTION_ENUM.TOP;
-                }
-                this.state = ENTITY_STATE_ENUM.TURNRIGHT;
-                EventManager.Instance.emit(EVENT_ENUM.PLAYER_MOVE_END);
-                break;
+
+        const input: number = DIRECTION_ORDER_ENUM[inputDirection] as number;
+        const direction: number = DIRECTION_ORDER_ENUM[this.direction] as number;
+        if (input >= 0) {
+            this.targetX = this.targetX + IDIRECTION[inputDirection].x;
+            this.targetY = this.targetY - IDIRECTION[inputDirection].y;
+            this.isMoveing = true;
+            this.showSmoke(DIRECTION_ENUM[inputDirection]);
+        } else {
+            const rotateSign: number = IROTATION[inputDirection];
+            this.direction = DIRECTION_ENUM[DIRECTION_ORDER_ENUM[(direction + rotateSign + 4) % 4]];
+            this.state = ENTITY_STATE_ENUM[inputDirection];
+            EventManager.Instance.emit(EVENT_ENUM.PLAYER_MOVE_END);
         }
     }
 
